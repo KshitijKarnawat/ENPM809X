@@ -12,81 +12,141 @@
 """
 
 # import libraries
-import random
-import copy
 import pandas as pd
 import time
 from matplotlib import pyplot as plt
-import sys
-
-"""
-* @brief
-*
-* @param
-* @param
-* @param
-*
-* @returns
-"""
-def partition(arr, p, r):
-    # choose random pivot
-    pivot = random.randint(p, r) 
-
-    #swap pivot with last element
-    arr[pivot], arr[r] = arr[r], arr[pivot]
-    intersection = copy.deepcopy(arr[r])
-    
-    for i in range(p, r):
-        if intersection[0] <= arr[i][1] and arr[i][1] <= intersection[0]:
-            if arr[i][0] > intersection[0]:
-                intersection[0] = arr[i][0]
-            if arr[i][1] < intersection[1]:
-                intersection[1] = arr[i][1]
-
-    s = p
-    for i in range(p, r):
-        if arr[i][1] < intersection[0]:
-            arr[i], arr[s] = arr[s], arr[i]
-            s += 1
-
-    arr[r], arr[s] = arr[s], arr[r]
+from random import randint
 
 
-    t = s + 1
-    while t <= i:
-        if arr[i][0] <= intersection[1] and intersection[1] <= arr[i][0]:
-            arr[t], arr[i] = arr[i], arr[t]
+def fuzzy_sort(arr, begin, end):
+    """
+    Returns intervals in a fuzzy sorted manner for the given array of intevals
+
+        Parameters:
+            arr (list of lists): The list of intervals that are to be sorted
+            begin (int):         The start of the list
+            end (int):           The end of the list
+
+        Returns:
+            None
+    """
+
+    if begin < end:
+        q, t = random_partition(arr, begin, end)
+
+        fuzzy_sort(arr, begin, q - 1)
+        fuzzy_sort(arr, t + 1, end)
+
+
+def random_partition(arr, begin, end):
+    """
+    Chooses a random interval as the pivot.
+
+        Parameters:
+            arr (list of lists): The list of intervals that are to be sorted
+            begin (int):         The start of the list
+            end (int):           The end of the list
+
+        Returns:
+            Tuple: The end and start points for the split lists
+    """
+        
+    i = randint(begin, end)
+    # swap pivot with last element
+    arr[i], arr[end] = arr[end], arr[i]
+
+    return partition(arr, begin, end)
+
+
+def partition(arr, begin, end):
+    """
+    Splits the list into two and returns the end and start intervals for the split lists.
+
+        Parameters:
+            arr (list of lists): The list of intervals that are to be sorted
+            begin (int):         The start of the list
+            end (int):           The end of the list
+
+        Returns:
+            Tuple: The end and start points for the split lists
+    """
+
+    pivot = arr[end]
+    q = begin - 1
+    t = begin - 1
+
+    for i in range(begin, end):
+        if arr[i][1] < pivot[0]:
             t += 1
-        else:
-            i -= 1
+            q += 1
+            arr[t], arr[q] = arr[q], arr[t]
 
-    return (s, t)
+            if t != i:
+                arr[i], arr[q] = arr[q], arr[i]
+        elif (arr[i][0] <= pivot[1] and pivot[0] <= arr[i][1]):
+            t += 1
+            arr[t], arr[i] = arr[i], arr[t]
 
-"""
-* @brief
-*
-* @param
-* @param
-* @param
-"""
-def fuzzy_sort(arr, p, r):
-    if (p < r):
-        pivot = partition(arr, p, r)
-        fuzzy_sort(arr, p, pivot[0])
-        fuzzy_sort(arr, pivot[1], r)
+    arr[t + 1], arr[end] = arr[end], arr[t + 1]
+
+    return q + 1, t + 1
 
 
 def create_intervals(size, df):
+    """
+    Convert the dataframe into a list of intervals
+
+        Parameters:
+            size (int): size of the list
+            df (Pandas dataframe): Data read from the `*.txt` file
+
+        Returns:
+            List: List of intervals
+    """
     arr = []
     for i in range(0,size):
         [a,b] = df[0][i], df[1][i]
         arr.append([a,b])
     return arr
 
+
+def plot(time_taken):
+    """
+    Plot the data size vs time taken to sort graph
+
+        Parameter:
+            time_taken (list of lists): A list of lists which contains the size of the data and the time taken to execute it.
+        
+        Returns:
+            None
+    """
+    print(time_taken)
+    x = []
+    y = []
+    for i in time_taken:
+        x.append([i[0]])
+        y.append([i[1]])
+    plt.plot(x,y)
+
+
 def small_overlap():
+    """
+    Read the data from the `small_overlap.txt` file and call the fuzzy sorting function on the data. 
+    The function calls fuzzy sorting multiple times with different sizes of data and records the time required to sort it.
+    It then plots a graph of size vs time taken to sort.
+    
+        Parameter:
+            None
+
+        Returns:
+            None
+    """
+
+    # Read data from file
     df = pd.read_fwf('small_overlap.txt', header = None)
     time_taken_small = []
 
+    # Size 10
     arr = create_intervals(10, df)
     begin = time.time()
     fuzzy_sort(arr, 0, len(arr)-1)
@@ -95,6 +155,7 @@ def small_overlap():
     time_taken_small.append((10,exec_time))
     print((10,exec_time))
 
+    # Size 100
     arr = create_intervals(100, df)
     begin = time.time()
     fuzzy_sort(arr, 0, len(arr)-1)
@@ -103,6 +164,7 @@ def small_overlap():
     time_taken_small.append((100,exec_time))
     print((100,exec_time))
 
+    # Size 1000
     arr = create_intervals(1000, df)
     begin = time.time()
     fuzzy_sort(arr, 0, len(arr)-1)
@@ -111,6 +173,7 @@ def small_overlap():
     time_taken_small.append((1000,exec_time))
     print((1000,exec_time))
 
+    # Size 10000
     arr = create_intervals(10000, df)
     begin = time.time()
     fuzzy_sort(arr, 0, len(arr)-1)
@@ -119,6 +182,7 @@ def small_overlap():
     time_taken_small.append((10000,exec_time))
     print((10000,exec_time))
 
+    # Size 100000
     arr = create_intervals(100000, df)
     begin = time.time()
     fuzzy_sort(arr, 0, len(arr)-1)
@@ -127,6 +191,7 @@ def small_overlap():
     time_taken_small.append((100000,exec_time))
     print((100000,exec_time))
 
+    # Size 1000000
     arr = create_intervals(1000000, df)
     begin = time.time()
     fuzzy_sort(arr, 0, len(arr)-1)
@@ -135,20 +200,28 @@ def small_overlap():
     time_taken_small.append((1000000,exec_time))
     print((1000000,exec_time))
 
-    print(time_taken_small)
-    x = []
-    y = []
-    for i in time_taken_small:
-        x.append([i[0]])
-        y.append([i[1]])
-    plt.plot(x,y)
-    plt.show()
+    # Plot
+    plot(time_taken_small)
 
 
 def all_overlap():
+    """
+    Read the data from the `all_overlap.txt` file and call the fuzzy sorting function on the data. 
+    The function calls fuzzy sorting multiple times with different sizes of data and records the time required to sort it.
+    It then plots a graph of size vs time taken to sort.
+        
+        Parameter:
+            None
+                    
+        Returns:
+            None
+    """
+
+    # Read data from file
     df = pd.read_fwf('all_overlap.txt', header = None)
     time_taken_all = []
 
+    # Size 10
     arr = create_intervals(10, df)
     begin = time.time()
     fuzzy_sort(arr, 0, len(arr)-1)
@@ -157,6 +230,7 @@ def all_overlap():
     time_taken_all.append((10,exec_time))
     print((10,exec_time))
 
+    # Size 100
     arr = create_intervals(100, df)
     begin = time.time()
     fuzzy_sort(arr, 0, len(arr)-1)
@@ -165,6 +239,7 @@ def all_overlap():
     time_taken_all.append((100,exec_time))
     print((100,exec_time))
 
+    # Size 1000
     arr = create_intervals(1000, df)
     begin = time.time()
     fuzzy_sort(arr, 0, len(arr)-1)
@@ -173,6 +248,7 @@ def all_overlap():
     time_taken_all.append((1000,exec_time))
     print((1000,exec_time))
 
+    # Size 10000
     arr = create_intervals(10000, df)
     begin = time.time()
     fuzzy_sort(arr, 0, len(arr)-1)
@@ -181,36 +257,38 @@ def all_overlap():
     time_taken_all.append((10000,exec_time))
     print((10000,exec_time))
 
-    # arr = create_intervals(100000, df)
-    # begin = time.time()
-    # fuzzy_sort(arr, 0, len(arr)-1)
-    # end = time.time()
-    # exec_time = end - begin
-    # time_taken_all.append((100000,exec_time))
-    # print((100000,exec_time))
+    # Size 100000
+    arr = create_intervals(100000, df)
+    begin = time.time()
+    fuzzy_sort(arr, 0, len(arr)-1)
+    end = time.time()
+    exec_time = end - begin
+    time_taken_all.append((100000,exec_time))
+    print((100000,exec_time))
 
-    # arr = create_intervals(1000000, df)
-    # begin = time.time()
-    # fuzzy_sort(arr, 0, len(arr)-1)
-    # end = time.time()
-    # exec_time = end - begin
-    # time_taken_all.append((1000000,exec_time))
-    # print((1000000,exec_time))
+    # Size 1000000
+    arr = create_intervals(1000000, df)
+    begin = time.time()
+    fuzzy_sort(arr, 0, len(arr)-1)
+    end = time.time()
+    exec_time = end - begin
+    time_taken_all.append((1000000,exec_time))
+    print((1000000,exec_time))
 
-    print(time_taken_all)
-    x = []
-    y = []
-    for i in time_taken_all:
-        x.append([i[0]])
-        y.append([i[1]])
-    plt.plot(x,y)
-    plt.show()
+    # Plot
+    plot(time_taken_all)
 
 
 def main():
-    # sys.setrecursionlimit(100000000)
-    # small_overlap()
-    all_overlap()
     
+    small_overlap()
+    
+    all_overlap()
+
+    # Plot the graphs
+    plt.legend(["small overlap", "all overlap"])
+    plt.show()
+
+
 if __name__ == "__main__":
     main()
