@@ -1,46 +1,48 @@
 #include <iostream>
 #include <vector>
 
-void print_quicksort(std::vector<int> input){
-    for(int i = 0; i < input.size(); i++)
-        std::cout << input.at(i) << ", ";
-    std::cout<<std::endl;
-}
+int partition(std::vector<int> *arr, const int &low, const int &high) {
+    int pivot = (*arr)[high];  // taking the last element as pivot
+    int i = (low - 1);       // Index of smaller element
 
-
-int partiton(std::vector<int> input, int begin, int end){
-    int temp;
-    int x{input.at(end)};
-    int i{begin-1};
-    for(int j = begin; j < end; j++){
-        if(input.at(j) <= x){
-            i++;
-            
-            temp = input.at(i);
-            input.at(i) = input.at(j);
-            input.at(j) = temp;
+    for (int j = low; j < high; j++) {
+        // If current element is smaller than or
+        // equal to pivot
+        if ((*arr)[j] <= pivot) {
+            i++;  // increment index of smaller element
+            std::swap((*arr)[i], (*arr)[j]);
         }
     }
-    
-    temp = input.at(i+1);
-    input.at(i+1) = input.at(end);
-    input.at(end) = temp;
-    
-    return i+1;    
 
+    std::swap((*arr)[i + 1], (*arr)[high]);
+    return (i + 1);
 }
 
 
-void quicksort(std::vector<int> input, int begin, int end){
-    int part;
-    if(begin<end){
-        std::cout<<"in quicksort";
-        part = partiton(input,begin,end);
-        quicksort(input,begin,part-1);
-        quicksort(input,part+1,end);
+void quick_sort(std::vector<int> *arr, const int &low, const int &high) {
+    if (low < high) {
+        int p = partition(arr, low, high);
+
+        quick_sort(arr, low, p - 1);
+        quick_sort(arr, p + 1, high);
     }
-    // print_quicksort(input);
-       
+}
+
+
+std::vector<int> quick_sort(std::vector<int> arr, const int &low, const int &high) {
+    if (low < high) {
+        int p = partition(&arr, low, high);
+
+        quick_sort(&arr, low, p - 1);
+        quick_sort(&arr, p + 1, high);
+    }
+    return arr;
+}
+
+
+void show(const std::vector<int> &arr, const int &size) {
+    for (int i = 0; i < size; i++) std::cout << arr[i] << " ";
+    std::cout << "\n";
 }
 
 
@@ -48,6 +50,6 @@ int main(){
     std::vector<int> input{1,5,676,23,987,340,13,49,3};
     int begin{0};
     int end{input.size()-1};
-    quicksort(input, begin, end);
-    // print_quicksort(input);
+    quick_sort(&input, begin, end);
+    show(input, input.size());
 }
