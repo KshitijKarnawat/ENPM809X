@@ -20,7 +20,7 @@ from random import randint
 
 def fuzzy_sort(arr, begin, end):
     """
-    Returns intervals in a fuzzy sorted manner for the given array of intevals
+    Returns intervals in a fuzzy sorted manner for the given array of intervals
 
         Parameters:
             arr (list of lists): The list of intervals that are to be sorted
@@ -51,9 +51,9 @@ def random_partition(arr, begin, end):
             Tuple: The end and start points for the split lists
     """
         
-    i = randint(begin, end)
-    # swap pivot with last element
-    arr[i], arr[end] = arr[end], arr[i]
+    pivot = randint(begin, end)
+    # swap pivot with last element this helps us to use the quicksort algorithm even though we have a random pivot
+    arr[pivot], arr[end] = arr[end], arr[pivot]
 
     return partition(arr, begin, end)
 
@@ -72,21 +72,22 @@ def partition(arr, begin, end):
     """
 
     pivot = arr[end]
-    q = begin - 1
-    t = begin - 1
+    q = begin - 1       # middle start
+    t = begin - 1       # middle end
 
     for i in range(begin, end):
-        if arr[i][1] < pivot[0]:
+        if arr[i][0] <= pivot[1] and pivot[0] <= arr[i][1]: # right
+            t += 1
+            arr[t], arr[i] = arr[i], arr[t]
+
+        elif arr[i][1] < pivot[0]:  # left-middle 
             t += 1
             q += 1
             arr[t], arr[q] = arr[q], arr[t]
 
             if t != i:
                 arr[i], arr[q] = arr[q], arr[i]
-        elif (arr[i][0] <= pivot[1] and pivot[0] <= arr[i][1]):
-            t += 1
-            arr[t], arr[i] = arr[i], arr[t]
-
+        
     arr[t + 1], arr[end] = arr[end], arr[t + 1]
 
     return q + 1, t + 1
@@ -151,6 +152,7 @@ def small_overlap():
     begin = time.time()
     fuzzy_sort(arr, 0, len(arr)-1)
     end = time.time()
+    # print(arr)
     exec_time = end - begin
     time_taken_small.append((10,exec_time))
     print((10,exec_time))
@@ -182,6 +184,15 @@ def small_overlap():
     time_taken_small.append((10000,exec_time))
     print((10000,exec_time))
 
+    # Size 50000
+    arr = create_intervals(50000, df)
+    begin = time.time()
+    fuzzy_sort(arr, 0, len(arr)-1)
+    end = time.time()
+    exec_time = end - begin
+    time_taken_small.append((50000,exec_time))
+    print((50000,exec_time))
+
     # Size 100000
     arr = create_intervals(100000, df)
     begin = time.time()
@@ -190,6 +201,33 @@ def small_overlap():
     exec_time = end - begin
     time_taken_small.append((100000,exec_time))
     print((100000,exec_time))
+
+    # Size 250000
+    arr = create_intervals(250000, df)
+    begin = time.time()
+    fuzzy_sort(arr, 0, len(arr)-1)
+    end = time.time()
+    exec_time = end - begin
+    time_taken_small.append((250000,exec_time))
+    print((250000,exec_time))
+
+    # Size 500000
+    arr = create_intervals(500000, df)
+    begin = time.time()
+    fuzzy_sort(arr, 0, len(arr)-1)
+    end = time.time()
+    exec_time = end - begin
+    time_taken_small.append((500000,exec_time))
+    print((500000,exec_time))
+
+    # Size 750000
+    arr = create_intervals(750000, df)
+    begin = time.time()
+    fuzzy_sort(arr, 0, len(arr)-1)
+    end = time.time()
+    exec_time = end - begin
+    time_taken_small.append((750000,exec_time))
+    print((750000,exec_time))
 
     # Size 1000000
     arr = create_intervals(1000000, df)
@@ -257,6 +295,15 @@ def all_overlap():
     time_taken_all.append((10000,exec_time))
     print((10000,exec_time))
 
+    # Size 50000
+    arr = create_intervals(50000, df)
+    begin = time.time()
+    fuzzy_sort(arr, 0, len(arr)-1)
+    end = time.time()
+    exec_time = end - begin
+    time_taken_all.append((50000,exec_time))
+    print((50000,exec_time))
+
     # Size 100000
     arr = create_intervals(100000, df)
     begin = time.time()
@@ -265,6 +312,33 @@ def all_overlap():
     exec_time = end - begin
     time_taken_all.append((100000,exec_time))
     print((100000,exec_time))
+
+    # Size 250000
+    arr = create_intervals(250000, df)
+    begin = time.time()
+    fuzzy_sort(arr, 0, len(arr)-1)
+    end = time.time()
+    exec_time = end - begin
+    time_taken_all.append((250000,exec_time))
+    print((250000,exec_time))
+
+    # Size 500000
+    arr = create_intervals(500000, df)
+    begin = time.time()
+    fuzzy_sort(arr, 0, len(arr)-1)
+    end = time.time()
+    exec_time = end - begin
+    time_taken_all.append((500000,exec_time))
+    print((500000,exec_time))
+
+    # Size 750000
+    arr = create_intervals(750000, df)
+    begin = time.time()
+    fuzzy_sort(arr, 0, len(arr)-1)
+    end = time.time()
+    exec_time = end - begin
+    time_taken_all.append((750000,exec_time))
+    print((750000,exec_time))
 
     # Size 1000000
     arr = create_intervals(1000000, df)
