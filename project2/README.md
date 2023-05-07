@@ -26,7 +26,7 @@ cd ~/project2
 To run this file run the command
 
 ```sh
-python3 kshitij_proj2.py
+python3 cgr.py
 ```
 
 ## Credits
